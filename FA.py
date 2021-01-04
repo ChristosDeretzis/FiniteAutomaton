@@ -3,38 +3,32 @@ import sys
 
 class FAe:
 
-    def __init__(self, states, transitions, start_state, accept_states, num_transitions):
-        self.states = states
+    def __init__(self, transitions, transitions_e, start_state, accept_states, num_transitions):
         self.transitions = transitions
+        self.transitions_e = transitions_e
         self.start_state = start_state
         self.accept_states = accept_states
-        self.current_state = start_state
+        self.current_state = set()
         self.num_transitions = num_transitions
         self.alphabet = set()
 
     def transition_to_next_state(self, input_value):
-        next_states = set()
-        e_states, last_used_states = set(), set()
+       temp_current_states = set()
+       for cs in self.current_state.copy():
+           for key_e, value_e in transitions_dict_e.items():
+               if cs == key_e[0] and key_e[1] == '@':
+                   self.current_state.remove(key_e[0])
+                   for item in value_e:
+                       temp_current_states.add(item)
+           for key, value in transitions_dict.items():
+               if key[1] == input_value and key[0] == cs:
+                   for item in value:
+                    temp_current_states.add(item)
 
-        for state in self.current_state:
-            e_states.add(state)
-            set_difference = e_states - last_used_states
+       self.current_state.clear()
+       self.current_state.update(temp_current_states)
+       temp_current_states.clear()
 
-            while bool(set_difference):
-                set_difference = e_states - last_used_states
-
-                if not bool(set_difference):
-                    break
-                last_used_states = e_states.copy()
-
-                for state in set_difference:
-                    if (state, '@') in self.transitions.keys():
-                        e_states = e_states | self.transitions[(state, '@')]
-
-            for state in e_states:
-                next_states = next_states | self.transitions[(state, input_value)]
-
-        self.current_state = self.current_state | e_states if input_value == ' ' else next_states
 
 
     def is_state_accepted(self):
@@ -43,10 +37,6 @@ class FAe:
                 return True
         return False
 
-    def move_to_initial_state(self):
-        self.current_state = self.start_state
-        return
-
     def calculate_alphabet(self):
         self.alphabet.add(" ")
         for y in self.transitions.keys():
@@ -54,10 +44,10 @@ class FAe:
                 self.alphabet.add(y[1])
 
     def run_automaton(self, inputList):
-        self.move_to_initial_state()
         self.calculate_alphabet()
+        self.current_state = set()
+        self.current_state.add(self.start_state)
 
-        inputList.append(' ')
         for input in inputList:
             if input not in self.alphabet:
                 print("The letter ({}) does not exist on the alphabet.".format(input))
@@ -125,3 +115,14 @@ if __name__ == "__main__":
     filename = sys.argv[1]
 
     number_of_states, start_state, final_states, number_of_transitions, transitions_dict, transitions_dict_e = readDataFromFile(filename)
+    automaton = FAe(transitions_dict, transitions_dict_e, start_state, final_states, number_of_transitions)
+
+    while True:
+        word = input("Enter a word: ")
+        if word == 'exit':
+            exit(0)
+        accepted = automaton.run_automaton(word)
+        if accepted:
+            print("The word is accepted!")
+        else:
+            print("The word is not accepted")
