@@ -68,42 +68,60 @@ class FAe:
 
 def readDataFromFile(fileName):
     with open(fileName) as file:
-        transitions_dictionary = defaultdict(set)
-        states = set()
-        final_list = set()
-        for line in file:
-            split = line.split(" ")
-            if split[0].startswith("states"):
-                for i in range(int(split[1])):
-                    states.add(i + 1)
-            elif split[0].startswith("initial"):
-                initial = int(split[1])
-                temp = set()
-                temp.add(initial)
-                initial = temp
-            elif split[0].startswith("final"):
-                continue
-            elif split[0].startswith("f_states"):
-                for i in range(1, len(split)):
-                    final_list.add(int(split[i]))
-            elif split[0].startswith("transitions"):
-                num_transitions = int(split[1])
-            else:
-                transitions_dictionary[(int(split[0]), split[1])].add(int(split[2]))
+        number_of_states = int(file.readline())
+        print("Number of states: ", number_of_states)
+        print("--------------------------------------")
 
-    return states, initial, final_list, transitions_dictionary, num_transitions
+        start_state = int(file.readline())
+        print("Start state: ", start_state)
+        print("--------------------------------------")
+
+        number_of_final_states = int(file.readline())
+        print("Number of final states: ", number_of_final_states)
+        print("--------------------------------------")
+
+        final_states = set()
+        final_states_str = file.readline();
+        final_states_split = final_states_str.split(" ")
+        for i in range(len(final_states_split)):
+            final_states.add(int(final_states_split[i]))
+        print("Final States: ", final_states)
+        print("--------------------------------------")
+
+        number_of_transitions = int(file.readline())
+        print("Number of transitions: ", number_of_transitions)
+        print("--------------------------------------")
+
+        transitions_dict = {}
+        transitions_dict_e = {}
+        for line in file:
+            line = line.split(" ")
+
+            key = tuple([int(line[0]), line[1]])
+            value = tuple([int(line[2])])
+
+            if line[1] != "@":
+                if key in transitions_dict.keys():
+                    transitions_dict[key] = transitions_dict[key] + value
+                else:
+                    transitions_dict.update({
+                        key: value
+                    })
+            else:
+                if key in transitions_dict_e.keys():
+                    transitions_dict_e[key] = transitions_dict_e[key] + value
+                else:
+                    transitions_dict_e.update({
+                        key: value
+                    })
+        print("Transitions : ", transitions_dict)
+        print("Transitions of e: ", transitions_dict_e)
+
+        return number_of_states, start_state, final_states, number_of_transitions, transitions_dict, transitions_dict_e
+
+
 
 if __name__ == "__main__":
     filename = sys.argv[1]
 
-    states, initial, accept_states, transitions, num_transitions = readDataFromFile(filename)
-    automaton = FAe(states, transitions, initial, accept_states, num_transitions)
-    input_program = list(input("Enter word: "))
-
-    while(True):
-        if (input_program[0] == 'exit'):
-            print('Exiting program.')
-            exit()
-        print(automaton.run_automaton(input_program))
-        input_program = list(input("Enter input :"))
-
+    number_of_states, start_state, final_states, number_of_transitions, transitions_dict, transitions_dict_e = readDataFromFile(filename)
