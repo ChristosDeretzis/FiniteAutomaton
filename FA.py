@@ -1,7 +1,7 @@
 from collections import defaultdict
 import sys
 
-class FAe:
+class Automaton:
 
     def __init__(self, transitions, transitions_e, start_state, accept_states, num_transitions):
         self.transitions = transitions
@@ -17,7 +17,7 @@ class FAe:
     # transitions dictionaries and checks the next states based on the
     # current state and the input character. If there is an e-transition,
     # remove the current state from the current state set.
-    def transition_to_next_state(self, input_value):
+    def  transition_to_next_state(self, input_value):
        temp_current_states = set()
 
        # loop the set in current state set
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     filename = sys.argv[1]
 
     number_of_states, start_state, final_states, number_of_transitions, transitions_dict, transitions_dict_e = readDataFromFile(filename)
-    automaton = FAe(transitions_dict, transitions_dict_e, start_state, final_states, number_of_transitions)
+    automaton = Automaton(transitions_dict, transitions_dict_e, start_state, final_states, number_of_transitions)
 
     while True:
         word = input("Enter a word: ")
